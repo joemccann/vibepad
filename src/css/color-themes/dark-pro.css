@@ -5,67 +5,70 @@
 */
 
 :root{
-    --bg-color:#11101E;
-    --primary-text-color: #fff;
-    --primary-font-family: sans-serif;
-    --breadcumb-border-color: rgb(45, 42, 57);
-    --breadcumb-bg-color: #1A1B28;
+    /* VibePad Theme - Extracted from banner */
+    --bg-color: #000000;
+    --primary-text-color: #ffffff;
+    --secondary-text-color: #9ca3af;
+    --accent-color: #f59e0b;
+    --primary-font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    --breadcumb-border-color: #1f1f1f;
+    --breadcumb-bg-color: #0a0a0a;
     --copy-path-btn-img-filter: none;
     --base-font-size: 15px;
-    --breadcumb-item-hover-color: #4fdee5;
-    --breadcumb-arrow-color: #01ff70;
-    --menu-item-border-color: #292938;
-    --menu-item-bg-color: #1A1B28;
-    --menu-item-active-border-color: rgb(105 75 226);
-    --menu-item-active-bg-color: #433387;
+    --breadcumb-item-hover-color: #f59e0b;
+    --breadcumb-arrow-color: #f59e0b;
+    --menu-item-border-color: #1f1f1f;
+    --menu-item-bg-color: #0a0a0a;
+    --menu-item-active-border-color: #f59e0b;
+    --menu-item-active-bg-color: rgba(245, 158, 11, 0.15);
     --menu-item-img-filter: none;
-    --copyable-property-bg-color: rgba(33, 47, 61, 0.8);
-    --copyable-property-border-color: #5d6d7e;
-    --btn-bg-color: #33354a;
-    --btn-border-color: #111;
-    --btn-default-bg-color: #1A1B28;
-    --btn-primary-bg-color: #433387;
-    --btn-primary-text-color: white;
+    --copyable-property-bg-color: rgba(245, 158, 11, 0.1);
+    --copyable-property-border-color: #f59e0b;
+    --btn-bg-color: #1a1a1a;
+    --btn-border-color: #1f1f1f;
+    --btn-default-bg-color: #0a0a0a;
+    --btn-primary-bg-color: #f59e0b;
+    --btn-primary-text-color: #000000;
 
     /* JSON Tree Color Scheme*/
-    --property-color: #4fdee5;
-    --json-literal-numeric: #f5b041;
-    --json-literal-string: #01ff70;
-    --json-literal-url: #0184ff;
-    --json-literal-and-boolean: #af7ac5;
-    --copier-bg-color: #2ecc71;
-    --copier-text-color: #2ecc71;
+    --property-color: #f59e0b;
+    --json-literal-numeric: #fbbf24;
+    --json-literal-string: #9ca3af;
+    --json-literal-url: #60a5fa;
+    --json-literal-and-boolean: #c084fc;
+    --copier-bg-color: #f59e0b;
+    --copier-text-color: #f59e0b;
 
     /* chart view*/
-    --json-chart-circle-bg: #01ff70;
+    --json-chart-circle-bg: #f59e0b;
 
     /* editor */
-    --json-input-bg-color: #070707;
-    --json-input-border-color: #363537;
-    --error-msg-bg-color: #1f0604;
-    --editor-footer-bg-color: #111;
-    --editor-footer-text-color: #868585;
-    --editor-footer-border-color: #222;
+    --json-input-bg-color: #000000;
+    --json-input-border-color: #1f1f1f;
+    --error-msg-bg-color: #1c0a0a;
+    --editor-footer-bg-color: #0a0a0a;
+    --editor-footer-text-color: #9ca3af;
+    --editor-footer-border-color: #1f1f1f;
 
     /* dropdown */
-    --dropdown-bg-primary: #1A1B28;
-    --dropdown-menu-item-bg: #43455d;
-    --dropdown-menu-item-border-color: #222;
-    --dropdown-menu-border-color: #111;
+    --dropdown-bg-primary: #0a0a0a;
+    --dropdown-menu-item-bg: #1a1a1a;
+    --dropdown-menu-item-border-color: #1f1f1f;
+    --dropdown-menu-border-color: #1f1f1f;
 
     /* json path search bar */
-    --searchbar-bg-color:rgba(29, 27, 61, 1);
-    --searchbar-border-color:#111111;
-    --searchbar-box-shadow-color:rgba(6, 6, 6, 0.7);
+    --searchbar-bg-color: #0a0a0a;
+    --searchbar-border-color: #1f1f1f;
+    --searchbar-box-shadow-color: rgba(0, 0, 0, 0.5);
     --searchbar-text-input-bg-color: #000000;
-    --searchbar-text-input-border-color: #222;
-    --searchbar-text-input-text-color: #01ff70;
-    --searchbar-text-input-focus-outline-color: #4a4173;
-    --searchbar-info-text-color: #d8d6d6;
-    --search-clear-btn-text-color: #4a4173;
+    --searchbar-text-input-border-color: #1f1f1f;
+    --searchbar-text-input-text-color: #f59e0b;
+    --searchbar-text-input-focus-outline-color: #f59e0b;
+    --searchbar-info-text-color: #9ca3af;
+    --search-clear-btn-text-color: #9ca3af;
     --search-clear-btn-bg-color: #000000;
 
     /* common */
-    --toolbar-bg-color: #000;
-    --toolbar-border-color: #222;
+    --toolbar-bg-color: #000000;
+    --toolbar-border-color: #1f1f1f;
 }

@@ -1,9 +1,43 @@
 /**
- * New Tab JSON & Markdown Editor
- * A simple editor that works within MV3 CSP restrictions
+ * VibePad - New Tab JSON & Markdown Editor
+ * A modern editor with keyboard shortcuts, resizable panels, and loading states
  */
 (function() {
     'use strict';
+
+    // ==================== Utilities ====================
+
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const modKey = isMac ? '⌘' : 'Ctrl';
+
+    function showToast(message, type = 'success') {
+        let toast = document.querySelector('.toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+
+        // Trigger reflow for animation
+        toast.offsetHeight;
+        toast.classList.add('visible');
+
+        setTimeout(() => {
+            toast.classList.remove('visible');
+        }, 2500);
+    }
+
+    function setLoading(button, loading) {
+        if (loading) {
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
 
     // ==================== Tab Switching ====================
 
@@ -23,6 +57,10 @@
                     content.classList.toggle('active', content.id === tabName + '-tab');
                 });
 
+                // Focus the appropriate input
+                const input = document.getElementById(tabName === 'json' ? 'json-input' : 'markdown-input');
+                if (input) input.focus();
+
                 // Save preference
                 try {
                     localStorage.setItem('activeTab', tabName);
@@ -38,6 +76,88 @@
                 if (btn) btn.click();
             }
         } catch (e) {}
+
+        // Tab keyboard shortcuts (Ctrl/Cmd + 1, 2)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    document.querySelector('.tab-btn[data-tab="json"]')?.click();
+                } else if (e.key === '2') {
+                    e.preventDefault();
+                    document.querySelector('.tab-btn[data-tab="markdown"]')?.click();
+                }
+            }
+        });
+    }
+
+    // ==================== Resizable Panels ====================
+
+    function initResizablePanels() {
+        document.querySelectorAll('.editor-container').forEach(container => {
+            const editorPanel = container.querySelector('.editor-panel');
+            if (!editorPanel) return;
+
+            // Create resize handle
+            const handle = document.createElement('div');
+            handle.className = 'resize-handle';
+            editorPanel.appendChild(handle);
+
+            let isResizing = false;
+            let startX = 0;
+            let startWidth = 0;
+
+            handle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = editorPanel.offsetWidth;
+                handle.classList.add('active');
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+
+                const containerWidth = container.offsetWidth;
+                const newWidth = startWidth + (e.clientX - startX);
+                const minWidth = 200;
+                const maxWidth = containerWidth - 200;
+
+                const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+                const percentage = (clampedWidth / containerWidth) * 100;
+
+                editorPanel.style.flex = 'none';
+                editorPanel.style.width = `${percentage}%`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    isResizing = false;
+                    handle.classList.remove('active');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+
+                    // Save panel width
+                    try {
+                        const tabId = container.closest('.tab-content')?.id;
+                        if (tabId) {
+                            localStorage.setItem(`panelWidth_${tabId}`, editorPanel.style.width);
+                        }
+                    } catch (e) {}
+                }
+            });
+
+            // Restore saved width
+            try {
+                const tabId = container.closest('.tab-content')?.id;
+                const savedWidth = localStorage.getItem(`panelWidth_${tabId}`);
+                if (savedWidth) {
+                    editorPanel.style.flex = 'none';
+                    editorPanel.style.width = savedWidth;
+                }
+            } catch (e) {}
+        });
     }
 
     // ==================== JSON Editor ====================
@@ -54,11 +174,25 @@
 
         let debounceTimer = null;
 
+        // Add keyboard shortcut hints
+        formatBtn.innerHTML = `Format <span class="shortcut">${modKey}+⇧+F</span>`;
+        minifyBtn.innerHTML = `Minify <span class="shortcut">${modKey}+⇧+M</span>`;
+        clearBtn.innerHTML = `Clear <span class="shortcut">${modKey}+K</span>`;
+
         function parseAndRender() {
             const value = input.value.trim();
 
             if (!value) {
-                treeView.innerHTML = '<div class="empty">Paste JSON to see tree view</div>';
+                treeView.innerHTML = `
+                    <div class="empty-state" style="opacity: 1; position: relative; transform: none;">
+                        <div class="empty-state-icon">{ }</div>
+                        <div class="empty-state-title">No JSON to display</div>
+                        <div class="empty-state-hint">
+                            Paste JSON or drag & drop a <kbd>.json</kbd> file<br>
+                            <kbd>${modKey}</kbd> + <kbd>V</kbd> to paste
+                        </div>
+                    </div>
+                `;
                 errorEl.classList.remove('visible');
                 return;
             }
@@ -69,7 +203,7 @@
                 treeView.appendChild(renderTree(data));
                 errorEl.classList.remove('visible');
             } catch (e) {
-                errorEl.textContent = 'Parse Error: ' + e.message;
+                errorEl.textContent = e.message;
                 errorEl.classList.add('visible');
             }
         }
@@ -88,15 +222,21 @@
                 const escaped = escapeHtml(data);
                 container.innerHTML = formatKeyValue(key, `<span class="tree-string">"${escaped}"</span>`);
             } else if (Array.isArray(data)) {
-                container.innerHTML = formatKeyValue(key, '<span class="tree-bracket">[</span>');
+                container.innerHTML = formatKeyValue(key, `<span class="tree-bracket">[</span><span class="tree-count" style="color: var(--text-muted); font-size: 11px; margin-left: 4px;">${data.length} items</span>`);
                 container.classList.add('tree-expanded');
 
                 if (data.length > 0) {
                     const toggle = document.createElement('span');
                     toggle.className = 'tree-toggle';
-                    toggle.addEventListener('click', () => {
-                        container.classList.toggle('tree-expanded');
-                        container.classList.toggle('tree-collapsed');
+                    toggle.tabIndex = 0;
+                    toggle.setAttribute('role', 'button');
+                    toggle.setAttribute('aria-expanded', 'true');
+                    toggle.addEventListener('click', () => toggleNode(container, toggle));
+                    toggle.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleNode(container, toggle);
+                        }
                     });
                     container.insertBefore(toggle, container.firstChild);
 
@@ -113,16 +253,22 @@
                 closeBracket.textContent = ']';
                 container.appendChild(closeBracket);
             } else if (typeof data === 'object') {
-                container.innerHTML = formatKeyValue(key, '<span class="tree-bracket">{</span>');
+                const keys = Object.keys(data);
+                container.innerHTML = formatKeyValue(key, `<span class="tree-bracket">{</span><span class="tree-count" style="color: var(--text-muted); font-size: 11px; margin-left: 4px;">${keys.length} keys</span>`);
                 container.classList.add('tree-expanded');
 
-                const keys = Object.keys(data);
                 if (keys.length > 0) {
                     const toggle = document.createElement('span');
                     toggle.className = 'tree-toggle';
-                    toggle.addEventListener('click', () => {
-                        container.classList.toggle('tree-expanded');
-                        container.classList.toggle('tree-collapsed');
+                    toggle.tabIndex = 0;
+                    toggle.setAttribute('role', 'button');
+                    toggle.setAttribute('aria-expanded', 'true');
+                    toggle.addEventListener('click', () => toggleNode(container, toggle));
+                    toggle.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleNode(container, toggle);
+                        }
                     });
                     container.insertBefore(toggle, container.firstChild);
 
@@ -143,9 +289,16 @@
             return container;
         }
 
+        function toggleNode(container, toggle) {
+            container.classList.toggle('tree-expanded');
+            container.classList.toggle('tree-collapsed');
+            const isExpanded = container.classList.contains('tree-expanded');
+            toggle.setAttribute('aria-expanded', isExpanded.toString());
+        }
+
         function formatKeyValue(key, valueHtml) {
             if (key !== null) {
-                const keyStr = typeof key === 'number' ? key : `"${escapeHtml(key)}"`;
+                const keyStr = typeof key === 'number' ? key : `"${escapeHtml(String(key))}"`;
                 return `<span class="tree-key">${keyStr}</span>: ${valueHtml}`;
             }
             return valueHtml;
@@ -159,38 +312,53 @@
                 .replace(/"/g, '&quot;');
         }
 
+        function formatJson() {
+            try {
+                setLoading(formatBtn, true);
+                const data = JSON.parse(input.value);
+                input.value = JSON.stringify(data, null, 2);
+                parseAndRender();
+                showToast('JSON formatted');
+            } catch (e) {
+                errorEl.textContent = e.message;
+                errorEl.classList.add('visible');
+                showToast('Invalid JSON', 'error');
+            } finally {
+                setLoading(formatBtn, false);
+            }
+        }
+
+        function minifyJson() {
+            try {
+                setLoading(minifyBtn, true);
+                const data = JSON.parse(input.value);
+                input.value = JSON.stringify(data);
+                parseAndRender();
+                showToast('JSON minified');
+            } catch (e) {
+                errorEl.textContent = e.message;
+                errorEl.classList.add('visible');
+                showToast('Invalid JSON', 'error');
+            } finally {
+                setLoading(minifyBtn, false);
+            }
+        }
+
+        function clearJson() {
+            input.value = '';
+            parseAndRender();
+            input.focus();
+            showToast('Cleared');
+        }
+
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(parseAndRender, 150);
         });
 
-        formatBtn.addEventListener('click', () => {
-            try {
-                const data = JSON.parse(input.value);
-                input.value = JSON.stringify(data, null, 2);
-                parseAndRender();
-            } catch (e) {
-                errorEl.textContent = 'Cannot format: ' + e.message;
-                errorEl.classList.add('visible');
-            }
-        });
-
-        minifyBtn.addEventListener('click', () => {
-            try {
-                const data = JSON.parse(input.value);
-                input.value = JSON.stringify(data);
-                parseAndRender();
-            } catch (e) {
-                errorEl.textContent = 'Cannot minify: ' + e.message;
-                errorEl.classList.add('visible');
-            }
-        });
-
-        clearBtn.addEventListener('click', () => {
-            input.value = '';
-            parseAndRender();
-            input.focus();
-        });
+        formatBtn.addEventListener('click', formatJson);
+        minifyBtn.addEventListener('click', minifyJson);
+        clearBtn.addEventListener('click', clearJson);
 
         // Import file handling
         importBtn.addEventListener('click', () => {
@@ -201,20 +369,41 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            setLoading(importBtn, true);
             const reader = new FileReader();
             reader.onload = (event) => {
                 input.value = event.target.result;
                 parseAndRender();
-                // Trigger save to localStorage
                 input.dispatchEvent(new Event('input'));
+                setLoading(importBtn, false);
+                showToast(`Imported ${file.name}`);
             };
             reader.onerror = () => {
                 errorEl.textContent = 'Error reading file: ' + reader.error.message;
                 errorEl.classList.add('visible');
+                setLoading(importBtn, false);
+                showToast('Import failed', 'error');
             };
             reader.readAsText(file);
-            // Reset file input so same file can be re-imported
             fileInput.value = '';
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Only handle when JSON tab is active or input is focused
+            const jsonTabActive = document.getElementById('json-tab')?.classList.contains('active');
+            if (!jsonTabActive) return;
+
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                formatJson();
+            } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'm') {
+                e.preventDefault();
+                minifyJson();
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                clearJson();
+            }
         });
 
         // Load saved JSON
@@ -235,9 +424,6 @@
 
         // Initial render
         parseAndRender();
-
-        // Focus input
-        input.focus();
     }
 
     // ==================== Markdown Editor ====================
@@ -252,10 +438,23 @@
 
         let debounceTimer = null;
 
+        // Add keyboard shortcut hints
+        formatBtn.innerHTML = `Format <span class="shortcut">${modKey}+⇧+F</span>`;
+        clearBtn.innerHTML = `Clear <span class="shortcut">${modKey}+K</span>`;
+
         function renderMarkdown() {
             const value = input.value;
             if (!value.trim()) {
-                output.innerHTML = '<div class="empty" style="color: #808080; font-style: italic;">Paste markdown to see preview</div>';
+                output.innerHTML = `
+                    <div class="empty-state" style="opacity: 1; position: relative; transform: none; left: 0; top: 0; padding: 48px;">
+                        <div class="empty-state-icon" style="font-size: 36px;">#</div>
+                        <div class="empty-state-title">No Markdown to preview</div>
+                        <div class="empty-state-hint">
+                            Paste Markdown or drag & drop a <kbd>.md</kbd> file<br>
+                            Supports GitHub Flavored Markdown
+                        </div>
+                    </div>
+                `;
                 return;
             }
 
@@ -266,14 +465,10 @@
             }
         }
 
-        input.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(renderMarkdown, 150);
-        });
-
-        formatBtn.addEventListener('click', async () => {
+        async function formatMarkdown() {
             if (typeof prettier !== 'undefined' && typeof prettierPlugins !== 'undefined') {
                 try {
+                    setLoading(formatBtn, true);
                     const formatted = await prettier.format(input.value, {
                         parser: 'markdown',
                         plugins: prettierPlugins,
@@ -281,17 +476,30 @@
                     });
                     input.value = formatted;
                     renderMarkdown();
+                    showToast('Markdown formatted');
                 } catch (e) {
                     console.error('Prettier error:', e);
+                    showToast('Format failed', 'error');
+                } finally {
+                    setLoading(formatBtn, false);
                 }
             }
-        });
+        }
 
-        clearBtn.addEventListener('click', () => {
+        function clearMarkdown() {
             input.value = '';
             renderMarkdown();
             input.focus();
+            showToast('Cleared');
+        }
+
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(renderMarkdown, 150);
         });
+
+        formatBtn.addEventListener('click', formatMarkdown);
+        clearBtn.addEventListener('click', clearMarkdown);
 
         // Import file handling
         importBtn.addEventListener('click', () => {
@@ -302,19 +510,36 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            setLoading(importBtn, true);
             const reader = new FileReader();
             reader.onload = (event) => {
                 input.value = event.target.result;
                 renderMarkdown();
-                // Trigger save to localStorage
                 input.dispatchEvent(new Event('input'));
+                setLoading(importBtn, false);
+                showToast(`Imported ${file.name}`);
             };
             reader.onerror = () => {
                 console.error('Error reading file:', reader.error);
+                setLoading(importBtn, false);
+                showToast('Import failed', 'error');
             };
             reader.readAsText(file);
-            // Reset file input so same file can be re-imported
             fileInput.value = '';
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            const mdTabActive = document.getElementById('markdown-tab')?.classList.contains('active');
+            if (!mdTabActive) return;
+
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                formatMarkdown();
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                clearMarkdown();
+            }
         });
 
         // Load saved markdown
@@ -373,7 +598,7 @@
                 const ext = '.' + file.name.split('.').pop().toLowerCase();
 
                 if (!allowedExtensions.includes(ext)) {
-                    console.warn('File type not allowed:', ext);
+                    showToast(`Only ${allowedExtensions.join(', ')} files allowed`, 'error');
                     return;
                 }
 
@@ -381,11 +606,11 @@
                 reader.onload = (event) => {
                     input.value = event.target.result;
                     onLoad();
-                    // Trigger save to localStorage
                     input.dispatchEvent(new Event('input'));
+                    showToast(`Loaded ${file.name}`);
                 };
                 reader.onerror = () => {
-                    console.error('Error reading dropped file:', reader.error);
+                    showToast('Error reading file', 'error');
                 };
                 reader.readAsText(file);
             });
@@ -393,25 +618,20 @@
 
         // JSON drop zone
         setupDropZone(jsonTab, jsonInput, ['.json'], () => {
-            const treeView = document.getElementById('json-tree');
             const errorEl = document.getElementById('json-error');
             const value = jsonInput.value.trim();
             try {
-                const data = JSON.parse(value);
-                treeView.innerHTML = '';
-                // Re-render tree (simplified - full render happens on input event)
+                JSON.parse(value);
                 errorEl.classList.remove('visible');
             } catch (e) {
-                errorEl.textContent = 'Parse Error: ' + e.message;
+                errorEl.textContent = e.message;
                 errorEl.classList.add('visible');
             }
-            // Trigger input event for full re-render
             jsonInput.dispatchEvent(new Event('input', { bubbles: true }));
         });
 
         // Markdown drop zone
         setupDropZone(markdownTab, markdownInput, ['.md', '.markdown', '.txt'], () => {
-            // Trigger input event for re-render
             markdownInput.dispatchEvent(new Event('input', { bubbles: true }));
         });
     }
@@ -420,8 +640,19 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initTabs();
+        initResizablePanels();
         initJsonEditor();
         initMarkdownEditor();
         initDragAndDrop();
+
+        // Focus appropriate input based on active tab
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab) {
+            const input = activeTab.querySelector('textarea');
+            if (input) {
+                // Delay focus to ensure everything is rendered
+                setTimeout(() => input.focus(), 100);
+            }
+        }
     });
 })();

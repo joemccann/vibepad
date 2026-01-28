@@ -42,9 +42,9 @@
 }
 
 .tab-btn.active {
-    color: var(--breadcumb-item-hover-color, #4fdee5);
-    border-bottom-color: var(--breadcumb-item-hover-color, #4fdee5);
-    background-color: rgba(79, 222, 229, 0.1);
+    color: var(--breadcumb-item-hover-color, #f59e0b);
+    border-bottom-color: var(--breadcumb-item-hover-color, #f59e0b);
+    background-color: rgba(245, 158, 11, 0.1);
 }
 
 .tab-content {
