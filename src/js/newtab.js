@@ -49,6 +49,8 @@
         const formatBtn = document.getElementById('format-json');
         const minifyBtn = document.getElementById('minify-json');
         const clearBtn = document.getElementById('clear-json');
+        const importBtn = document.getElementById('import-json');
+        const fileInput = document.getElementById('json-file-input');
 
         let debounceTimer = null;
 
@@ -190,6 +192,31 @@
             input.focus();
         });
 
+        // Import file handling
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                input.value = event.target.result;
+                parseAndRender();
+                // Trigger save to localStorage
+                input.dispatchEvent(new Event('input'));
+            };
+            reader.onerror = () => {
+                errorEl.textContent = 'Error reading file: ' + reader.error.message;
+                errorEl.classList.add('visible');
+            };
+            reader.readAsText(file);
+            // Reset file input so same file can be re-imported
+            fileInput.value = '';
+        });
+
         // Load saved JSON
         try {
             const saved = localStorage.getItem('jsonEditorContent');
@@ -220,6 +247,8 @@
         const output = document.getElementById('markdown-output');
         const formatBtn = document.getElementById('format-md');
         const clearBtn = document.getElementById('clear-md');
+        const importBtn = document.getElementById('import-md');
+        const fileInput = document.getElementById('md-file-input');
 
         let debounceTimer = null;
 
@@ -264,6 +293,30 @@
             input.focus();
         });
 
+        // Import file handling
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                input.value = event.target.result;
+                renderMarkdown();
+                // Trigger save to localStorage
+                input.dispatchEvent(new Event('input'));
+            };
+            reader.onerror = () => {
+                console.error('Error reading file:', reader.error);
+            };
+            reader.readAsText(file);
+            // Reset file input so same file can be re-imported
+            fileInput.value = '';
+        });
+
         // Load saved markdown
         try {
             const saved = localStorage.getItem('markdownEditorContent');
@@ -284,11 +337,91 @@
         renderMarkdown();
     }
 
+    // ==================== Drag and Drop ====================
+
+    function initDragAndDrop() {
+        const jsonTab = document.getElementById('json-tab');
+        const markdownTab = document.getElementById('markdown-tab');
+        const jsonInput = document.getElementById('json-input');
+        const markdownInput = document.getElementById('markdown-input');
+
+        function setupDropZone(dropZone, input, allowedExtensions, onLoad) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('drag-over');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('drag-over');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length === 0) return;
+
+                const file = files[0];
+                const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+                if (!allowedExtensions.includes(ext)) {
+                    console.warn('File type not allowed:', ext);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    input.value = event.target.result;
+                    onLoad();
+                    // Trigger save to localStorage
+                    input.dispatchEvent(new Event('input'));
+                };
+                reader.onerror = () => {
+                    console.error('Error reading dropped file:', reader.error);
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // JSON drop zone
+        setupDropZone(jsonTab, jsonInput, ['.json'], () => {
+            const treeView = document.getElementById('json-tree');
+            const errorEl = document.getElementById('json-error');
+            const value = jsonInput.value.trim();
+            try {
+                const data = JSON.parse(value);
+                treeView.innerHTML = '';
+                // Re-render tree (simplified - full render happens on input event)
+                errorEl.classList.remove('visible');
+            } catch (e) {
+                errorEl.textContent = 'Parse Error: ' + e.message;
+                errorEl.classList.add('visible');
+            }
+            // Trigger input event for full re-render
+            jsonInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+
+        // Markdown drop zone
+        setupDropZone(markdownTab, markdownInput, ['.md', '.markdown', '.txt'], () => {
+            // Trigger input event for re-render
+            markdownInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+    }
+
     // ==================== Initialize ====================
 
     document.addEventListener('DOMContentLoaded', () => {
         initTabs();
         initJsonEditor();
         initMarkdownEditor();
+        initDragAndDrop();
     });
 })();

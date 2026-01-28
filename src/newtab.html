@@ -19,9 +19,11 @@
                     <div class="panel-header">
                         <span>JSON Input</span>
                         <div class="toolbar">
+                            <button id="import-json" title="Import JSON file">Import</button>
                             <button id="format-json" title="Format JSON">Format</button>
                             <button id="minify-json" title="Minify JSON">Minify</button>
                             <button id="clear-json" title="Clear">Clear</button>
+                            <input type="file" id="json-file-input" accept=".json,application/json" hidden />
                         </div>
                     </div>
                     <textarea id="json-input" placeholder="Paste or type your JSON here..." spellcheck="false"></textarea>
@@ -42,8 +44,10 @@
                     <div class="panel-header">
                         <span>Markdown Input</span>
                         <div class="toolbar">
+                            <button id="import-md" title="Import Markdown file">Import</button>
                             <button id="format-md" title="Format Markdown">Format</button>
                             <button id="clear-md" title="Clear">Clear</button>
+                            <input type="file" id="md-file-input" accept=".md,.markdown,text/markdown,text/plain" hidden />
                         </div>
                     </div>
                     <textarea id="markdown-input" placeholder="Paste or type your markdown here..." spellcheck="false"></textarea>

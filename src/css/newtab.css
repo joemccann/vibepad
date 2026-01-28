@@ -329,3 +329,39 @@ textarea::placeholder {
     max-width: 100%;
     height: auto;
 }
+
+/* Drag and Drop */
+.tab-content.drag-over {
+    position: relative;
+}
+
+.tab-content.drag-over::after {
+    content: 'Drop file here';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(79, 222, 229, 0.1);
+    border: 2px dashed var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent-color);
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* Import button styling */
+.toolbar button#import-json,
+.toolbar button#import-md {
+    background-color: rgba(79, 222, 229, 0.2);
+    color: var(--accent-color);
+}
+
+.toolbar button#import-json:hover,
+.toolbar button#import-md:hover {
+    background-color: rgba(79, 222, 229, 0.3);
+}

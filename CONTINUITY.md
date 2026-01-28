@@ -27,14 +27,14 @@ Add Markdown tab and auto-show JSON editor on new tab. Success criteria:
 - Discovered MV3 CSP blocks main.js inline scripts in extension pages
 - Created separate newtab.html with custom JSON/Markdown editor (no main.js dependency)
 - Created newtab.css and newtab.js with full functionality
+- Added file import feature: Import buttons + drag-and-drop support
 
 ### Now
-- Browser testing of new newtab page
+- Committing file import feature
 
 ### Next
-- Fix any issues found
-- Update tests
-- Commit
+- Browser testing
+- PR
 
 ## Open Questions
 - None
