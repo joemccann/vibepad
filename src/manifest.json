@@ -5,7 +5,7 @@
   "version": "1.2.0",
   "description": "Replace your new tab with a JSON viewer and Markdown editor",
   "chrome_url_overrides": {
-    "newtab": "index.html"
+    "newtab": "newtab.html"
   },
   "background": {
     "service_worker": "/js/background.js"
@@ -32,14 +32,17 @@
       "matches": ["*://*/*", "ftp://*/*", "file:///*"],
       "resources": [
         "/js/main.js",
+        "/js/init.js",
         "/js/tabs.js",
         "/js/markdown.js",
+        "/js/newtab.js",
         "/js/marked.min.js",
         "/js/prettier-standalone.js",
         "/js/prettier-markdown.js",
         "/css/style.css",
         "/css/tabs.css",
         "/css/markdown.css",
+        "/css/newtab.css",
         "/css/color-themes/dark-pro.css",
         "/css/color-themes/mdn-light.css",
         "/css/codemirror.css",

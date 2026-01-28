@@ -10,18 +10,14 @@
         <link href="css/markdown.css" rel="stylesheet" />
     </head>
     <body>
-        <!-- JSON content - main.js reads this -->
-        <pre id="json-content">{
-  "welcome": "JSON & Markdown Viewer",
-  "instructions": {
-    "json": "Paste your JSON here or use the editor",
-    "markdown": "Click the Markdown tab to edit markdown"
-  },
-  "version": "1.1.0"
-}</pre>
+        <!-- Minimal JSON for main.js to initialize -->
+        <pre id="json-content">{}</pre>
 
         <!-- Load main.js first so it processes the JSON above -->
         <script type="text/javascript" src="js/main.js"></script>
+
+        <!-- Auto-click JSON Editor button after main.js initializes -->
+        <script type="text/javascript" src="js/init.js"></script>
 
         <!-- Tab UI and Markdown (injected after main.js) -->
         <script type="text/javascript" src="js/marked.min.js"></script>
