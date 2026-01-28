@@ -32,7 +32,6 @@
       "matches": ["*://*/*", "ftp://*/*", "file:///*"],
       "resources": [
         "/js/main.js",
-        "/js/init.js",
         "/js/tabs.js",
         "/js/markdown.js",
         "/js/newtab.js",

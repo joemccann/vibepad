@@ -48,7 +48,7 @@ npm test
 ```
 src/
 ├── manifest.json       # Extension manifest (Manifest V3)
-├── index.html          # New tab page
+├── newtab.html         # New tab page (JSON & Markdown editor)
 ├── options.html        # Settings page
 ├── js/
 │   ├── background.js   # Service worker

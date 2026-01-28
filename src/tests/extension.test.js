@@ -24,7 +24,7 @@ describe('Chrome Extension Structure', () => {
 
         test('should have chrome_url_overrides for newtab', () => {
             expect(manifest.chrome_url_overrides).toBeDefined();
-            expect(manifest.chrome_url_overrides.newtab).toBe('index.html');
+            expect(manifest.chrome_url_overrides.newtab).toBe('newtab.html');
         });
 
         test('should NOT have action (toolbar icon)', () => {
@@ -60,8 +60,8 @@ describe('Chrome Extension Structure', () => {
     });
 
     describe('Required files exist', () => {
-        test('index.html (new tab page) should exist', () => {
-            const filePath = path.join(SRC_DIR, 'index.html');
+        test('newtab.html (new tab page) should exist', () => {
+            const filePath = path.join(SRC_DIR, 'newtab.html');
             expect(fs.existsSync(filePath)).toBe(true);
         });
 
