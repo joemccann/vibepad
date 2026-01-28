@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "JSON & Markdown Viewer",
+  "short_name": "JSON/MD Tab",
+  "version": "1.2.0",
+  "description": "Replace your new tab with a JSON viewer and Markdown editor",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "background": {
+    "service_worker": "/js/background.js"
+  },
+  "content_scripts": [
+    {
+      "all_frames": false,
+      "js": ["/js/contentScript.js"],
+      "matches": ["http://*/*", "https://*/*", "ftp://*/*", "file:///*", "*://*/*"],
+      "run_at": "document_start"
+    }
+  ],
+  "host_permissions": ["*://*/*"],
+  "icons": {
+    "16": "images/icons/icon-16.png",
+    "32": "images/icons/icon-32.png",
+    "128": "images/icons/icon-128.png"
+  },
+  "options_page": "options.html",
+  "permissions": ["contextMenus", "storage"],
+  "offline_enabled": true,
+  "web_accessible_resources": [
+    {
+      "matches": ["*://*/*", "ftp://*/*", "file:///*"],
+      "resources": [
+        "/js/main.js",
+        "/js/tabs.js",
+        "/js/markdown.js",
+        "/js/marked.min.js",
+        "/js/prettier-standalone.js",
+        "/js/prettier-markdown.js",
+        "/css/style.css",
+        "/css/tabs.css",
+        "/css/markdown.css",
+        "/css/color-themes/dark-pro.css",
+        "/css/color-themes/mdn-light.css",
+        "/css/codemirror.css",
+        "/images/icons/bell.svg",
+        "options.html"
+      ]
+    }
+  ]
+}

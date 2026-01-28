@@ -1,0 +1,71 @@
+/**
+ * Tab Navigation Styles
+ */
+
+.tab-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background-color: var(--toolbar-bg-color, #000);
+    border-bottom: 1px solid var(--toolbar-border-color, #222);
+    padding: 0;
+    z-index: 1000;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-text-color, #fff);
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--primary-font-family, sans-serif);
+    min-width: 100px;
+}
+
+/* Use pseudo-elements for tab labels to avoid text content issues */
+.tab-btn[data-tab="json"]::before {
+    content: "JSON";
+}
+
+.tab-btn[data-tab="markdown"]::before {
+    content: "Markdown";
+}
+
+.tab-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: var(--breadcumb-item-hover-color, #4fdee5);
+    border-bottom-color: var(--breadcumb-item-hover-color, #4fdee5);
+    background-color: rgba(79, 222, 229, 0.1);
+}
+
+.tab-content {
+    display: none;
+    padding-top: 50px; /* Account for fixed tab nav */
+    min-height: calc(100vh - 50px);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Adjust JSON viewer positioning when tabs are present */
+#json-tab .breadcumb {
+    top: 70px;
+}
+
+#json-tab .action-area {
+    top: 70px;
+}
+
+#json-tab #json-viewer {
+    margin-top: 100px;
+}

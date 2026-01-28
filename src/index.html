@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="shortcut icon" href="images/icons/icon-32.png" rel="icon" type="image/png" />
+        <title>JSON & Markdown Viewer</title>
+        <link href="css/style.css" rel="stylesheet" />
+        <link href="css/tabs.css" rel="stylesheet" />
+        <link href="css/markdown.css" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- JSON content - main.js reads this -->
+        <pre id="json-content">{
+  "welcome": "JSON & Markdown Viewer",
+  "instructions": {
+    "json": "Paste your JSON here or use the editor",
+    "markdown": "Click the Markdown tab to edit markdown"
+  },
+  "version": "1.1.0"
+}</pre>
+
+        <!-- Load main.js first so it processes the JSON above -->
+        <script type="text/javascript" src="js/main.js"></script>
+
+        <!-- Tab UI and Markdown (injected after main.js) -->
+        <script type="text/javascript" src="js/marked.min.js"></script>
+        <script type="text/javascript" src="js/prettier-standalone.js"></script>
+        <script type="text/javascript" src="js/prettier-markdown.js"></script>
+        <script type="text/javascript" src="js/markdown.js"></script>
+        <script type="text/javascript" src="js/tabs.js"></script>
+    </body>
+</html>

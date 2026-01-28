@@ -1,0 +1,17 @@
+{
+  "name": "json-viewer-new-tab",
+  "version": "1.0.0",
+  "description": "Chrome extension that replaces new tab with JSON viewer",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "json-viewer",
+    "new-tab"
+  ],
+  "license": "MIT"
+}
