@@ -1,12 +1,13 @@
 /**
  * VibePad Options Page Styles
- * Dark theme with amber accents
+ * Supports dark, light, and system themes
  */
 
 /* Google Fonts - JetBrains Mono */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
+/* Dark Theme (default) */
+:root, [data-theme="dark"] {
     /* VibePad Theme */
     --bg-color: #000000;
     --panel-bg: #0a0a0a;
@@ -23,6 +24,49 @@
     /* Switch */
     --switch-accent-color: var(--accent-color);
     --switch-btn-size: 26px;
+
+    /* Icon filters */
+    --icon-filter: brightness(0) invert(1) opacity(0.6);
+    --icon-filter-hover: brightness(0) invert(1);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    --bg-color: #ffffff;
+    --panel-bg: #f6f6f6;
+    --card-bg: #ffffff;
+    --border-color: #e5e5e5;
+    --text-color: #111111;
+    --text-muted: #6b7280;
+    --accent-color: #d97706;
+    --accent-hover: #b45309;
+    --error-color: #dc2626;
+    --success-color: #16a34a;
+    --info-color: #2563eb;
+
+    /* Icon filters for light theme */
+    --icon-filter: brightness(0) opacity(0.6);
+    --icon-filter-hover: brightness(0);
+}
+
+/* System theme preference (when data-theme="system" or not set with system preference) */
+@media (prefers-color-scheme: light) {
+    [data-theme="system"] {
+        --bg-color: #ffffff;
+        --panel-bg: #f6f6f6;
+        --card-bg: #ffffff;
+        --border-color: #e5e5e5;
+        --text-color: #111111;
+        --text-muted: #6b7280;
+        --accent-color: #d97706;
+        --accent-hover: #b45309;
+        --error-color: #dc2626;
+        --success-color: #16a34a;
+        --info-color: #2563eb;
+
+        --icon-filter: brightness(0) opacity(0.6);
+        --icon-filter-hover: brightness(0);
+    }
 }
 
 * {
@@ -204,12 +248,12 @@ ul.menu > li > a:focus-visible {
 .menu a > img.icon {
     width: 20px;
     height: 20px;
-    filter: brightness(0) invert(1) opacity(0.6);
+    filter: var(--icon-filter);
 }
 
 ul.menu > li > a:hover > img.icon,
 ul.menu > li > a.active > img.icon {
-    filter: brightness(0) invert(1);
+    filter: var(--icon-filter-hover);
 }
 
 /* Forms */
