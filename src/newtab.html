@@ -8,41 +8,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <title>VibePad</title>
         <link href="css/newtab.css" rel="stylesheet" />
-        <script>
-            // Apply theme immediately to prevent flash of wrong theme
-            (async function() {
-                const dbName = 'rb-awesome-json-viewer-options';
-                try {
-                    const data = await chrome.storage.local.get([dbName]);
-                    let options = data[dbName];
-                    if (typeof options === 'string') {
-                        options = JSON.parse(options);
-                    }
-                    const theme = (options && options.theme) || 'default';
-                    if (theme === 'mdn') {
-                        document.documentElement.setAttribute('data-theme', 'light');
-                    } else if (theme === 'system') {
-                        document.documentElement.setAttribute('data-theme', 'system');
-                    } else {
-                        document.documentElement.setAttribute('data-theme', 'dark');
-                    }
-                } catch (e) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                }
-
-                // Listen for system theme changes when using 'system' setting
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async () => {
-                    const data = await chrome.storage.local.get([dbName]);
-                    let options = data[dbName];
-                    if (typeof options === 'string') options = JSON.parse(options);
-                    if (options && options.theme === 'system') {
-                        // Force re-evaluation by toggling attribute
-                        document.documentElement.removeAttribute('data-theme');
-                        document.documentElement.setAttribute('data-theme', 'system');
-                    }
-                });
-            })();
-        </script>
+        <script src="js/theme-init.js"></script>
     </head>
     <body>
         <div class="tab-nav">
