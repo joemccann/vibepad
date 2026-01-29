@@ -101,13 +101,29 @@ const initApplication = (options = {}) => {
     injectOptionsAsMetaContent(options);
 };
 
+// Detect system color scheme preference
+const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'default'
+        : 'mdn';
+};
+
+// Resolve theme setting to actual theme (handles 'system' option)
+const resolveTheme = (themeSetting) => {
+    if (themeSetting === 'system') {
+        return getSystemTheme();
+    }
+    return themeSetting;
+};
+
 const applyOptions = (options) => {
     const themes = {
         default: 'dark-pro.css',
         mdn: 'mdn-light.css',
     };
     const styleNode = document.getElementById(COLOR_THEME_LINK_TAG_ID);
-    const colorThemeStylesheetUrl = themes[options.theme] || themes['default'];
+    const resolvedTheme = resolveTheme(options.theme);
+    const colorThemeStylesheetUrl = themes[resolvedTheme] || themes['default'];
     const cssURL = chrome.runtime.getURL(
         '/css/color-themes/' + colorThemeStylesheetUrl,
     );
@@ -117,6 +133,17 @@ const applyOptions = (options) => {
     }
     document.getElementById('custom-css').textContent = options.css || '';
 };
+
+// Listen for system theme changes and update if 'system' theme is selected
+const setupSystemThemeListener = () => {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (window.extensionOptions && window.extensionOptions.theme === 'system') {
+            applyOptions(window.extensionOptions);
+        }
+    });
+};
+
+setupSystemThemeListener();
 
 const renderApplicationWithURLFiltering = (options) => {
     const urls = (options || {}).filteredURL || [];
