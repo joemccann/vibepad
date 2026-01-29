@@ -57,7 +57,7 @@ src/
 - `jsonContent`: Parse page content regardless of Content-Type
 
 **Theming:**
-- Two themes: `default` (dark-pro.css) and `mdn` (mdn-light.css)
+- Three themes: `default` (dark-pro.css), `mdn` (mdn-light.css), and `system` (auto-detects OS preference)
 - Custom CSS support via options
 - CSS variables defined in color theme files
 
@@ -69,7 +69,7 @@ src/
 
 ```javascript
 {
-  theme: 'default' | 'mdn',
+  theme: 'default' | 'mdn' | 'system',  // 'system' auto-detects OS preference
   css: string,           // custom CSS
   collapsed: 0 | 1,      // collapse nested items by default
   filteredURL: string[], // URLs to exclude
@@ -79,3 +79,7 @@ src/
   }
 }
 ```
+
+## Aliases
+
+- **cmbp**: Commit, Merge to main, Bump version, Push to origin

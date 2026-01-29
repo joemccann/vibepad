@@ -184,7 +184,7 @@
 
             if (!value) {
                 treeView.innerHTML = `
-                    <div class="empty-state" style="opacity: 1; position: relative; transform: none;">
+                    <div class="empty-state" style="opacity: 1;">
                         <div class="empty-state-icon">{ }</div>
                         <div class="empty-state-title">No JSON to display</div>
                         <div class="empty-state-hint">
@@ -446,7 +446,7 @@
             const value = input.value;
             if (!value.trim()) {
                 output.innerHTML = `
-                    <div class="empty-state" style="opacity: 1; position: relative; transform: none; left: 0; top: 0; padding: 48px;">
+                    <div class="empty-state" style="opacity: 1;">
                         <div class="empty-state-icon" style="font-size: 36px;">#</div>
                         <div class="empty-state-title">No Markdown to preview</div>
                         <div class="empty-state-hint">
