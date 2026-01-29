@@ -28,7 +28,6 @@ dist/
 build/
 *.crx
 *.pem
-*.zip
 
 # Private/local files
 _private/
@@ -42,5 +41,5 @@ logs/
 # Temporary files
 *.tmp
 .temp/
-store-assets/
+nanobanana-output/
 .claude
