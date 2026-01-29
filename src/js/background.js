@@ -3,6 +3,56 @@ const dbName = 'rb-awesome-json-viewer-options';
 const RB_DOWNLOAD_JSON_MENU = 'RB_DOWNLOAD_JSON_MENU';
 const RB_OPEN_SETTINGS = 'RB_OPEN_SETTINGS';
 
+// Valid option keys - filter out any legacy/corrupted data
+const VALID_OPTION_KEYS = ['theme', 'css', 'collapsed', 'filteredURL', 'jsonDetection'];
+
+// Sanitize options to remove any invalid/legacy data that could cause JSON parse errors
+const sanitizeOptions = (options) => {
+    if (!options || typeof options !== 'object') {
+        return {};
+    }
+    const sanitized = {};
+    for (const key of VALID_OPTION_KEYS) {
+        if (key in options) {
+            sanitized[key] = options[key];
+        }
+    }
+    return sanitized;
+};
+
+// Clear corrupted storage data and reset to defaults
+const clearCorruptedData = async () => {
+    try {
+        const data = await chrome.storage.local.get([dbName]);
+        const existingData = data[dbName];
+
+        // Check if data exists and is potentially corrupted
+        if (existingData) {
+            let needsReset = false;
+
+            if (typeof existingData === 'string') {
+                try {
+                    const parsed = JSON.parse(existingData);
+                    if (typeof parsed !== 'object' || parsed === null) {
+                        needsReset = true;
+                    }
+                } catch (e) {
+                    needsReset = true;
+                }
+            } else if (typeof existingData !== 'object') {
+                needsReset = true;
+            }
+
+            if (needsReset) {
+                console.log('Clearing corrupted options data');
+                await chrome.storage.local.remove([dbName]);
+            }
+        }
+    } catch (e) {
+        console.error('Error clearing corrupted data:', e);
+    }
+};
+
 function genericOnClick(info, tab) {
     switch (info.menuItemId) {
         case RB_DOWNLOAD_JSON_MENU:
@@ -70,6 +120,9 @@ const sendOptions = async () => {
         options = {};
     }
 
+    // Sanitize options to remove any legacy/corrupted data
+    options = sanitizeOptions(options);
+
     options = {
         ...{
             theme: 'default',
@@ -120,8 +173,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
 });
 
-chrome.runtime.onInstalled.addListener((details) => {
+chrome.runtime.onInstalled.addListener(async (details) => {
     if (['install', 'update'].includes(details.reason)) {
+        // Clear any corrupted data from previous installations
+        await clearCorruptedData();
         createContextMenu();
     }
 });
