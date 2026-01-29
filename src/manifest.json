@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "VibePad",
   "short_name": "VibePad",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "JSON & Markdown editor for vibe coders. Your new tab, vibe-ified.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
