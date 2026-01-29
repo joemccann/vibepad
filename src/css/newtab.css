@@ -84,6 +84,36 @@ body {
     background-color: rgba(245, 158, 11, 0.05);
 }
 
+/* Settings Button */
+.settings-btn {
+    margin-left: auto;
+    padding: 0 16px;
+    min-height: var(--min-touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.settings-btn:hover {
+    color: var(--accent-color);
+}
+
+.settings-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+.settings-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.settings-btn:hover svg {
+    transform: rotate(45deg);
+}
+
 /* Tab Content */
 .tab-content {
     display: none;
