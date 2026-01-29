@@ -1,13 +1,14 @@
 /**
  * VibePad - New Tab Editor Styles
- * Dark theme with amber accents
+ * Supports dark, light, and system themes
  */
 
 /* Google Fonts - JetBrains Mono */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
 
-:root {
-    /* VibePad Theme - Extracted from banner */
+/* Dark Theme (default) */
+:root, [data-theme="dark"] {
+    /* VibePad Theme */
     --bg-color: #000000;
     --panel-bg: #0a0a0a;
     --border-color: #1f1f1f;
@@ -26,6 +27,44 @@
     /* Sizing */
     --min-touch-target: 44px;
     --header-height: 48px;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    --bg-color: #ffffff;
+    --panel-bg: #f8f9fa;
+    --border-color: #e5e7eb;
+    --text-color: #111111;
+    --text-muted: #6b7280;
+    --accent-color: #d97706;
+    --accent-hover: #b45309;
+    --error-color: #dc2626;
+    --success-color: #16a34a;
+    --key-color: #9333ea;
+    --string-color: #059669;
+    --number-color: #d97706;
+    --boolean-color: #db2777;
+    --null-color: #9ca3af;
+}
+
+/* System theme preference */
+@media (prefers-color-scheme: light) {
+    [data-theme="system"] {
+        --bg-color: #ffffff;
+        --panel-bg: #f8f9fa;
+        --border-color: #e5e7eb;
+        --text-color: #111111;
+        --text-muted: #6b7280;
+        --accent-color: #d97706;
+        --accent-hover: #b45309;
+        --error-color: #dc2626;
+        --success-color: #16a34a;
+        --key-color: #9333ea;
+        --string-color: #059669;
+        --number-color: #d97706;
+        --boolean-color: #db2777;
+        --null-color: #9ca3af;
+    }
 }
 
 * {
