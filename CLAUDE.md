@@ -45,16 +45,6 @@ src/
 
 **Key difference from reference**: Uses `chrome_url_override.newtab` instead of `action` - no toolbar icon, new tab is the JSON viewer.
 
-### Reference Extension (reference/)
-
-- **manifest.json**: Manifest V3 configuration with service worker, content scripts, and permissions
-- **js/background.js**: Service worker handling extension icon clicks, context menus, and message passing for options
-- **js/contentScript.js**: Injected into all pages to detect JSON content and inject the viewer UI
-- **js/main.js**: Bundled React application (~930KB minified) for the JSON viewer UI
-- **js/options.js**: Bundled options page logic (~425KB minified)
-- **options.html**: Settings page UI (theme selection, JSON detection strategy, URL filtering)
-- **index.html**: Main viewer page template
-
 ### Key Extension Patterns
 
 **Message Passing Flow:**
