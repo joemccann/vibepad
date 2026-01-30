@@ -636,6 +636,170 @@
         });
     }
 
+    // ==================== Claude Skill Creation ====================
+
+    const SKILL_SYSTEM_PROMPT = `You are a Claude Code skill converter. Convert the user's markdown into a Claude Code skill file.
+
+A skill has:
+1. YAML frontmatter (--- markers) with:
+   - name: kebab-case (required)
+   - description: 1-2 sentence purpose (required)
+   - disable-model-invocation: true|false (optional)
+   - allowed-tools: Read, Grep, etc. (optional)
+2. Markdown body with instructions
+
+Guidelines:
+- Extract clear name from content
+- Write concise description
+- Preserve user's original instructions
+- Add structure improvements if needed
+
+Output ONLY the skill file content starting with --- frontmatter.`;
+
+    async function getAnthropicApiKey() {
+        try {
+            const result = await chrome.storage.local.get(['anthropicApiKey']);
+            return result.anthropicApiKey || null;
+        } catch (e) {
+            console.error('Error retrieving API key:', e);
+            return null;
+        }
+    }
+
+    async function callAnthropicApi(apiKey, content) {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 4096,
+                system: SKILL_SYSTEM_PROMPT,
+                messages: [{ role: 'user', content: content }]
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+                throw new Error('Invalid API key. Check your settings.');
+            }
+            throw new Error(error.error?.message || `API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.content[0].text;
+    }
+
+    function showApiKeyModal() {
+        // Create modal if it doesn't exist
+        let overlay = document.querySelector('.modal-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>API Key Required</h3>
+                        <button class="modal-close" aria-label="Close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>To use the Create Skill feature, you need to configure your Anthropic API key.</p>
+                        <p>You can add your API key in <a href="options.html#api-settings" target="_blank">Settings → API Settings</a>.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary modal-cancel">Cancel</button>
+                        <button class="btn-primary modal-settings">Open Settings</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Event listeners
+            overlay.querySelector('.modal-close').addEventListener('click', hideModal);
+            overlay.querySelector('.modal-cancel').addEventListener('click', hideModal);
+            overlay.querySelector('.modal-settings').addEventListener('click', () => {
+                window.open('options.html#api-settings', '_blank');
+                hideModal();
+            });
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) hideModal();
+            });
+        }
+
+        // Show modal
+        requestAnimationFrame(() => {
+            overlay.classList.add('visible');
+        });
+    }
+
+    function hideModal() {
+        const overlay = document.querySelector('.modal-overlay');
+        if (overlay) {
+            overlay.classList.remove('visible');
+        }
+    }
+
+    async function handleCreateSkill() {
+        const input = document.getElementById('markdown-input');
+        const createBtn = document.getElementById('create-skill');
+        const content = input?.value.trim();
+
+        if (!content) {
+            showToast('Enter some markdown content first', 'error');
+            return;
+        }
+
+        const apiKey = await getAnthropicApiKey();
+        if (!apiKey) {
+            showApiKeyModal();
+            return;
+        }
+
+        try {
+            setLoading(createBtn, true);
+            const skillContent = await callAnthropicApi(apiKey, content);
+            input.value = skillContent;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            showToast('Skill created successfully');
+        } catch (e) {
+            console.error('Error creating skill:', e);
+            showToast(e.message || 'Error creating skill', 'error');
+        } finally {
+            setLoading(createBtn, false);
+        }
+    }
+
+    function initClaudeSkillCreation() {
+        const createBtn = document.getElementById('create-skill');
+
+        if (createBtn) {
+            // Add keyboard shortcut hint
+            createBtn.innerHTML = `Create Skill <span class="shortcut">${modKey}+⇧+S</span>`;
+
+            createBtn.addEventListener('click', handleCreateSkill);
+        }
+
+        // Keyboard shortcut (Cmd/Ctrl + Shift + S)
+        document.addEventListener('keydown', (e) => {
+            const mdTabActive = document.getElementById('markdown-tab')?.classList.contains('active');
+            if (!mdTabActive) return;
+
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                handleCreateSkill();
+            }
+        });
+    }
+
     // ==================== Initialize ====================
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -644,6 +808,7 @@
         initJsonEditor();
         initMarkdownEditor();
         initDragAndDrop();
+        initClaudeSkillCreation();
 
         // Focus appropriate input based on active tab
         const activeTab = document.querySelector('.tab-content.active');

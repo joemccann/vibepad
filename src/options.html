@@ -58,6 +58,15 @@
                                 /><span>Manage URL</span></a
                             >
                         </li>
+                        <li>
+                            <a href="#api-settings" class="tab-action-btn">
+                                <img
+                                    class="icon"
+                                    src="/images/icons/extensions.png"
+                                    alt=""
+                                /><span>API Settings</span></a
+                            >
+                        </li>
                     </ul>
                 </div>
                 <div class="col s12 m9">
@@ -306,6 +315,42 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card hidden" data-tab-view="api-settings">
+                        <div class="card-content">
+                            <h3 class="title">API Settings</h3>
+                            <div class="row">
+                                <div class="m12 note">
+                                    <p>
+                                        Your API key is stored locally in your browser
+                                        and is never sent anywhere except to Anthropic's API.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label for="anthropic-api-key">Anthropic API Key:</label>
+                                <input
+                                    type="password"
+                                    id="anthropic-api-key"
+                                    class="form-control"
+                                    placeholder="sk-ant-api03-..."
+                                    autocomplete="off"
+                                />
+                                <p class="api-key-help">
+                                    Get your API key from
+                                    <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>
+                                </p>
+                            </div>
+                            <div class="form-item no-margin">
+                                <button type="button" id="save-api-key" class="btn primary">
+                                    Save API Key
+                                </button>
+                                <button type="button" id="clear-api-key" class="btn default">
+                                    Clear API Key
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,5 +361,6 @@
         </div>
         <script type="module" src="js/options.js"></script>
         <script src="js/options-theme.js"></script>
+        <script src="js/api-settings.js"></script>
     </body>
 </html>

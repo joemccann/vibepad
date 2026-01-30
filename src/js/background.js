@@ -4,7 +4,7 @@ const RB_DOWNLOAD_JSON_MENU = 'RB_DOWNLOAD_JSON_MENU';
 const RB_OPEN_SETTINGS = 'RB_OPEN_SETTINGS';
 
 // Valid option keys - filter out any legacy/corrupted data
-const VALID_OPTION_KEYS = ['theme', 'css', 'collapsed', 'filteredURL', 'jsonDetection'];
+const VALID_OPTION_KEYS = ['theme', 'css', 'collapsed', 'filteredURL', 'jsonDetection', 'anthropicApiKey'];
 
 // Sanitize options to remove any invalid/legacy data that could cause JSON parse errors
 const sanitizeOptions = (options) => {

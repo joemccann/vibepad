@@ -686,6 +686,25 @@ select option {
     margin-right: 12px;
 }
 
+#save-api-key {
+    margin-right: 12px;
+}
+
+.api-key-help {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.api-key-help a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.api-key-help a:hover {
+    text-decoration: underline;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
