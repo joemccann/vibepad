@@ -75,6 +75,34 @@
         }
     }
 
+    function activateTab(tabName) {
+        // Remove 'active' from all menu links and add 'hidden' to all cards
+        document.querySelectorAll('.tab-action-btn').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelectorAll('[data-tab-view]').forEach(card => {
+            card.classList.add('hidden');
+        });
+
+        // Activate the target tab
+        const targetLink = document.querySelector(`.tab-action-btn[href="#${tabName}"]`);
+        const targetCard = document.querySelector(`[data-tab-view="${tabName}"]`);
+
+        if (targetLink) {
+            targetLink.classList.add('active');
+        }
+        if (targetCard) {
+            targetCard.classList.remove('hidden');
+        }
+    }
+
+    function handleHashNavigation() {
+        const hash = window.location.hash.slice(1); // Remove the '#'
+        if (hash === 'api-settings') {
+            activateTab('api-settings');
+        }
+    }
+
     function init() {
         const saveBtn = document.getElementById('save-api-key');
         const clearBtn = document.getElementById('clear-api-key');
@@ -89,6 +117,12 @@
 
         // Load existing API key on page load
         loadApiKey();
+
+        // Handle hash navigation for api-settings
+        handleHashNavigation();
+
+        // Also listen for hash changes
+        window.addEventListener('hashchange', handleHashNavigation);
     }
 
     // Initialize when DOM is ready
