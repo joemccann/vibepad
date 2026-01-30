@@ -1,4 +1,4 @@
-![VibePad](assets/github-banner.png)
+![VibePad](.github/img/github-banner.png)
 
 # VibePad
 
@@ -8,12 +8,12 @@ A modern Chrome extension that replaces your new tab with a powerful JSON and Ma
 
 - **JSON Editor** - Paste, format, minify, and visualize JSON with an interactive tree view
 - **Markdown Editor** - Write and preview GitHub Flavored Markdown in real-time
+- **Create Claude Skills** - Convert markdown content into [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill files using the Anthropic API
 - **Dark Theme** - Easy on the eyes with an amber accent color scheme
 - **Keyboard Shortcuts** - Power user friendly with full keyboard support
 - **Resizable Panels** - Drag to adjust editor/preview split
 - **Drag & Drop** - Drop `.json` or `.md` files directly into the editor
 - **Auto-Save** - Your work persists across sessions
-- **Create Claude Skills** - Convert markdown content into Claude Code skill files using the Anthropic API
 - **Zero Permissions** - No data collection, works entirely offline
 
 ## Installation
@@ -65,18 +65,29 @@ A modern Chrome extension that replaces your new tab with a powerful JSON and Ma
 
 VibePad can convert your markdown content into properly formatted [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill files using the Anthropic API.
 
-### Setup
+#### 1. Write your skill instructions in markdown
 
-1. Open VibePad settings (gear icon)
-2. Enter your Anthropic API key in the **API Settings** section
-3. Click **Save API Key**
+![](.github/img/1-product-skill-start.png)
 
-### Usage
+Start by writing your skill requirements in the Markdown editor. Describe what the skill should do, any specific behaviors, and configuration details.
 
-1. Write or paste your skill instructions in the Markdown editor
-2. Click the **Create Skill** button or press `Cmd/Ctrl + Shift + S`
-3. The AI will convert your markdown into a properly formatted skill file
-4. Copy the generated skill to your Claude Code skills directory
+#### 2. Click "Create Skill" to begin conversion
+
+![](.github/img/2-product-skill-api.png)
+
+Click the **Create Skill** button (or press `Cmd/Ctrl + Shift + S`). If you haven't configured your API key yet, a modal will prompt you to add one.
+
+#### 3. Configure your Anthropic API key
+
+![](.github/img/3-product-skill-api-settings.png)
+
+In Settings, navigate to **API Settings** and enter your Anthropic API key. Your key is stored locally in your browser and is only sent to Anthropic's API.
+
+#### 4. Copy your generated skill file
+
+![](.github/img/4-product-skill-finished.png)
+
+The AI converts your markdown into a properly formatted skill file with metadata, description, and structured instructions. Copy the output to your Claude Code skills directory.
 
 ## Tech Stack
 
@@ -140,6 +151,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 MIT License - see [LICENSE](LICENSE) for details.
 
----
-
-Made with vibes by developers, for developers.
