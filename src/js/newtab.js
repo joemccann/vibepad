@@ -39,6 +39,50 @@
         }
     }
 
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function generateFilename(content, extension) {
+        // Try to extract a meaningful name from content
+        let name = 'vibepad';
+
+        if (extension === 'json') {
+            try {
+                const data = JSON.parse(content);
+                // Try common identifier fields
+                if (data.name) name = String(data.name).slice(0, 30);
+                else if (data.title) name = String(data.title).slice(0, 30);
+                else if (data.id) name = String(data.id).slice(0, 30);
+            } catch (e) {}
+        } else if (extension === 'md') {
+            // Try to extract first heading
+            const headingMatch = content.match(/^#\s+(.+)$/m);
+            if (headingMatch) {
+                name = headingMatch[1].slice(0, 30);
+            }
+        }
+
+        // Sanitize filename
+        name = name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            || 'vibepad';
+
+        // Add timestamp for uniqueness
+        const timestamp = new Date().toISOString().slice(0, 10);
+        return `${name}-${timestamp}.${extension}`;
+    }
+
     // ==================== Tab Switching ====================
 
     function initTabs() {
@@ -170,6 +214,7 @@
         const minifyBtn = document.getElementById('minify-json');
         const clearBtn = document.getElementById('clear-json');
         const importBtn = document.getElementById('import-json');
+        const downloadBtn = document.getElementById('download-json');
         const fileInput = document.getElementById('json-file-input');
 
         let debounceTimer = null;
@@ -178,6 +223,7 @@
         formatBtn.innerHTML = `Format <span class="shortcut">${modKey}+⇧+F</span>`;
         minifyBtn.innerHTML = `Minify <span class="shortcut">${modKey}+⇧+M</span>`;
         clearBtn.innerHTML = `Clear <span class="shortcut">${modKey}+K</span>`;
+        downloadBtn.innerHTML = `Download <span class="shortcut">${modKey}+⇧+D</span>`;
 
         function parseAndRender() {
             const value = input.value.trim();
@@ -351,6 +397,26 @@
             showToast('Cleared');
         }
 
+        function downloadJson() {
+            const content = input.value.trim();
+            if (!content) {
+                showToast('Nothing to download', 'error');
+                return;
+            }
+
+            // Validate JSON before downloading
+            try {
+                JSON.parse(content);
+            } catch (e) {
+                showToast('Fix JSON errors before downloading', 'error');
+                return;
+            }
+
+            const filename = generateFilename(content, 'json');
+            downloadFile(content, filename, 'application/json');
+            showToast(`Downloaded ${filename}`);
+        }
+
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(parseAndRender, 150);
@@ -359,6 +425,7 @@
         formatBtn.addEventListener('click', formatJson);
         minifyBtn.addEventListener('click', minifyJson);
         clearBtn.addEventListener('click', clearJson);
+        downloadBtn.addEventListener('click', downloadJson);
 
         // Import file handling
         importBtn.addEventListener('click', () => {
@@ -400,6 +467,9 @@
             } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'm') {
                 e.preventDefault();
                 minifyJson();
+            } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault();
+                downloadJson();
             } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
                 clearJson();
@@ -434,6 +504,7 @@
         const formatBtn = document.getElementById('format-md');
         const clearBtn = document.getElementById('clear-md');
         const importBtn = document.getElementById('import-md');
+        const downloadBtn = document.getElementById('download-md');
         const fileInput = document.getElementById('md-file-input');
 
         let debounceTimer = null;
@@ -441,6 +512,7 @@
         // Add keyboard shortcut hints
         formatBtn.innerHTML = `Format <span class="shortcut">${modKey}+⇧+F</span>`;
         clearBtn.innerHTML = `Clear <span class="shortcut">${modKey}+K</span>`;
+        downloadBtn.innerHTML = `Download <span class="shortcut">${modKey}+⇧+D</span>`;
 
         function renderMarkdown() {
             const value = input.value;
@@ -493,6 +565,18 @@
             showToast('Cleared');
         }
 
+        function downloadMarkdown() {
+            const content = input.value.trim();
+            if (!content) {
+                showToast('Nothing to download', 'error');
+                return;
+            }
+
+            const filename = generateFilename(content, 'md');
+            downloadFile(content, filename, 'text/markdown');
+            showToast(`Downloaded ${filename}`);
+        }
+
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(renderMarkdown, 150);
@@ -500,6 +584,7 @@
 
         formatBtn.addEventListener('click', formatMarkdown);
         clearBtn.addEventListener('click', clearMarkdown);
+        downloadBtn.addEventListener('click', downloadMarkdown);
 
         // Import file handling
         importBtn.addEventListener('click', () => {
@@ -536,6 +621,9 @@
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
                 e.preventDefault();
                 formatMarkdown();
+            } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault();
+                downloadMarkdown();
             } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
                 clearMarkdown();

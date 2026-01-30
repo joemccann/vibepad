@@ -291,6 +291,18 @@ body {
     background-color: rgba(245, 158, 11, 0.25);
 }
 
+/* Download button */
+.toolbar button#download-json,
+.toolbar button#download-md {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: var(--success-color);
+}
+
+.toolbar button#download-json:hover,
+.toolbar button#download-md:hover {
+    background-color: rgba(34, 197, 94, 0.25);
+}
+
 /* Create Skill button */
 .toolbar button#create-skill {
     background-color: rgba(245, 158, 11, 0.15);
