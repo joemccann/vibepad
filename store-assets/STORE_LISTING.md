@@ -21,6 +21,7 @@ VibePad replaces your new tab with a powerful JSON and Markdown editor.
 ✨ Features:
 • JSON Editor with interactive tree view
 • Markdown editor with live preview
+• Create Claude Code skills from markdown
 • Format, minify, and validate JSON
 • GitHub Flavored Markdown support
 • Dark theme with amber accents
@@ -32,16 +33,15 @@ VibePad replaces your new tab with a powerful JSON and Markdown editor.
 ⌨️ Keyboard Shortcuts:
 • Cmd/Ctrl + Shift + F — Format
 • Cmd/Ctrl + Shift + M — Minify JSON
+• Cmd/Ctrl + Shift + S — Create Claude Skill
 • Cmd/Ctrl + K — Clear
 • Cmd/Ctrl + 1/2 — Switch tabs
 
 🔒 Privacy:
 • Zero permissions required
 • No data collection
-• Works entirely offline
+• Works entirely offline (API key stored locally)
 • Open source on GitHub
-
-Built for developers who vibe while they code.
 ```
 
 ---

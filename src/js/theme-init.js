@@ -51,6 +51,27 @@ function setupSystemThemeListener() {
     });
 }
 
+// Save theme to storage
+async function saveTheme(theme) {
+    try {
+        const data = await chrome.storage.local.get([DB_NAME]);
+        let options = data[DB_NAME] || {};
+        if (typeof options === 'string') {
+            options = JSON.parse(options);
+        }
+        options.theme = theme;
+        await chrome.storage.local.set({ [DB_NAME]: options });
+        // Show toast notification if available
+        const toast = document.querySelector('.tost-message');
+        if (toast) {
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    } catch (e) {
+        console.error('Failed to save theme:', e);
+    }
+}
+
 // Setup theme dropdown listener (for options page)
 function setupThemeDropdownListener() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -58,6 +79,7 @@ function setupThemeDropdownListener() {
         if (themeSelect) {
             themeSelect.addEventListener('change', function() {
                 applyTheme(this.value);
+                saveTheme(this.value);
             });
         }
     });
