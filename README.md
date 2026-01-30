@@ -13,6 +13,7 @@ A modern Chrome extension that replaces your new tab with a powerful JSON and Ma
 - **Resizable Panels** - Drag to adjust editor/preview split
 - **Drag & Drop** - Drop `.json` or `.md` files directly into the editor
 - **Auto-Save** - Your work persists across sessions
+- **Create Claude Skills** - Convert markdown content into Claude Code skill files using the Anthropic API
 - **Zero Permissions** - No data collection, works entirely offline
 
 ## Installation
@@ -45,6 +46,7 @@ A modern Chrome extension that replaces your new tab with a powerful JSON and Ma
 | `Cmd/Ctrl + 2` | Switch to Markdown tab |
 | `Cmd/Ctrl + Shift + F` | Format code |
 | `Cmd/Ctrl + Shift + M` | Minify JSON |
+| `Cmd/Ctrl + Shift + S` | Create Claude Skill (Markdown tab) |
 | `Cmd/Ctrl + K` | Clear editor |
 
 ## Screenshots
@@ -58,6 +60,23 @@ A modern Chrome extension that replaces your new tab with a powerful JSON and Ma
 - Live preview with GitHub Flavored Markdown
 - Support for tables, code blocks, and more
 - Prettier formatting integration
+
+## Create Claude Skills
+
+VibePad can convert your markdown content into properly formatted [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill files using the Anthropic API.
+
+### Setup
+
+1. Open VibePad settings (gear icon)
+2. Enter your Anthropic API key in the **API Settings** section
+3. Click **Save API Key**
+
+### Usage
+
+1. Write or paste your skill instructions in the Markdown editor
+2. Click the **Create Skill** button or press `Cmd/Ctrl + Shift + S`
+3. The AI will convert your markdown into a properly formatted skill file
+4. Copy the generated skill to your Claude Code skills directory
 
 ## Tech Stack
 
@@ -87,7 +106,8 @@ src/
 ├── js/
 │   ├── newtab.js        # Editor logic
 │   ├── background.js    # Service worker
-│   └── options.js       # Settings logic
+│   ├── options.js       # Settings logic
+│   └── api-settings.js  # Anthropic API key management
 ├── css/
 │   ├── newtab.css       # Editor styles
 │   ├── options.css      # Settings styles
