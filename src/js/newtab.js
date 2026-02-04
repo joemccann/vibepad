@@ -888,6 +888,128 @@ Output ONLY the skill file content starting with --- frontmatter.`;
         });
     }
 
+    // ==================== Scroll Sync ====================
+
+    function initScrollSync() {
+        // Scroll sync state
+        let scrollSyncEnabled = true;
+        let isScrolling = false;
+        let scrollTimeout = null;
+
+        // Throttle function for performance (~60fps)
+        function throttle(fn, delay = 16) {
+            let lastCall = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastCall >= delay) {
+                    lastCall = now;
+                    fn.apply(this, args);
+                }
+            };
+        }
+
+        // Calculate and apply scroll sync
+        function syncScroll(source, target) {
+            if (!scrollSyncEnabled || isScrolling) return;
+
+            const sourceScrollable = source.scrollHeight - source.clientHeight;
+            if (sourceScrollable <= 0) return;
+
+            const scrollPercentage = source.scrollTop / sourceScrollable;
+            const targetScrollable = target.scrollHeight - target.clientHeight;
+
+            isScrolling = true;
+            target.scrollTop = scrollPercentage * targetScrollable;
+
+            // Reset flag after scroll completes
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+            }, 50);
+        }
+
+        // Create toggle button for panel header
+        function createScrollSyncToggle() {
+            const toggle = document.createElement('button');
+            toggle.className = 'scroll-sync-toggle active';
+            toggle.title = 'Toggle scroll sync';
+            toggle.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+                <span>Sync</span>
+            `;
+            toggle.addEventListener('click', () => {
+                scrollSyncEnabled = !scrollSyncEnabled;
+                toggle.classList.toggle('active', scrollSyncEnabled);
+                toggle.title = scrollSyncEnabled ? 'Scroll sync enabled' : 'Scroll sync disabled';
+
+                // Update all toggle buttons
+                document.querySelectorAll('.scroll-sync-toggle').forEach(btn => {
+                    btn.classList.toggle('active', scrollSyncEnabled);
+                    btn.title = scrollSyncEnabled ? 'Scroll sync enabled' : 'Scroll sync disabled';
+                });
+
+                showToast(scrollSyncEnabled ? 'Scroll sync enabled' : 'Scroll sync disabled');
+            });
+            return toggle;
+        }
+
+        // Setup JSON scroll sync
+        const jsonInput = document.getElementById('json-input');
+        const jsonTree = document.getElementById('json-tree');
+        if (jsonInput && jsonTree) {
+            const throttledJsonSync = throttle(() => syncScroll(jsonInput, jsonTree));
+            jsonInput.addEventListener('scroll', throttledJsonSync);
+
+            // Add toggle to JSON preview panel header
+            const jsonPreviewHeader = document.querySelector('#json-tab .preview-panel .panel-header');
+            if (jsonPreviewHeader) {
+                const toggle = createScrollSyncToggle();
+                jsonPreviewHeader.appendChild(toggle);
+            }
+        }
+
+        // Setup Markdown scroll sync
+        const mdInput = document.getElementById('markdown-input');
+        const mdOutput = document.getElementById('markdown-output');
+        if (mdInput && mdOutput) {
+            const throttledMdSync = throttle(() => syncScroll(mdInput, mdOutput));
+            mdInput.addEventListener('scroll', throttledMdSync);
+
+            // Add toggle to Markdown preview panel header
+            const mdPreviewHeader = document.querySelector('#markdown-tab .preview-panel .panel-header');
+            if (mdPreviewHeader) {
+                const toggle = createScrollSyncToggle();
+                mdPreviewHeader.appendChild(toggle);
+            }
+        }
+
+        // Load saved preference
+        try {
+            const saved = localStorage.getItem('scrollSyncEnabled');
+            if (saved !== null) {
+                scrollSyncEnabled = saved === 'true';
+                document.querySelectorAll('.scroll-sync-toggle').forEach(btn => {
+                    btn.classList.toggle('active', scrollSyncEnabled);
+                    btn.title = scrollSyncEnabled ? 'Scroll sync enabled' : 'Scroll sync disabled';
+                });
+            }
+        } catch (e) {}
+
+        // Save preference on toggle
+        document.querySelectorAll('.scroll-sync-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                try {
+                    localStorage.setItem('scrollSyncEnabled', scrollSyncEnabled);
+                } catch (e) {}
+            });
+        });
+    }
+
     // ==================== Initialize ====================
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -897,6 +1019,7 @@ Output ONLY the skill file content starting with --- frontmatter.`;
         initMarkdownEditor();
         initDragAndDrop();
         initClaudeSkillCreation();
+        initScrollSync();
 
         // Focus appropriate input based on active tab
         const activeTab = document.querySelector('.tab-content.active');
