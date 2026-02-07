@@ -14,6 +14,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="json">JSON</button>
             <button class="tab-btn" data-tab="markdown">Markdown</button>
+            <button id="toggle-docs" class="tab-btn" title="Saved Documents">Documents</button>
             <a href="options.html" class="settings-btn" title="Settings">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
@@ -29,6 +30,7 @@
                         <span>JSON Input</span>
                         <div class="toolbar">
                             <button id="import-json" title="Import JSON file">Import</button>
+                            <button id="save-json" title="Save to local storage">Save</button>
                             <button id="download-json" title="Download JSON file">Download</button>
                             <button id="format-json" title="Format JSON">Format</button>
                             <button id="minify-json" title="Minify JSON">Minify</button>
@@ -55,6 +57,7 @@
                         <span>Markdown Input</span>
                         <div class="toolbar">
                             <button id="import-md" title="Import Markdown file">Import</button>
+                            <button id="save-md" title="Save to local storage">Save</button>
                             <button id="download-md" title="Download Markdown file">Download</button>
                             <button id="format-md" title="Format Markdown">Format</button>
                             <button id="clear-md" title="Clear">Clear</button>
@@ -69,6 +72,18 @@
                         <span>Preview</span>
                     </div>
                     <div id="markdown-output" class="markdown-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="docs-drawer" class="docs-drawer">
+            <div class="drawer-header">
+                <h3>Saved Documents</h3>
+                <button id="close-docs" class="close-btn">&times;</button>
+            </div>
+            <div class="drawer-content">
+                <div id="docs-list" class="docs-list">
+                    <!-- Documents will be populated here -->
                 </div>
             </div>
         </div>

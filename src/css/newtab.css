@@ -338,9 +338,11 @@ body {
     transform: scale(0.97);
 }
 
-/* Primary action buttons (Import, Create Skill) */
+/* Primary action buttons (Import, Save, Create Skill) */
 .toolbar button#import-json,
+.toolbar button#save-json,
 .toolbar button#import-md,
+.toolbar button#save-md,
 .toolbar button#create-skill {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
@@ -348,7 +350,9 @@ body {
 }
 
 .toolbar button#import-json:hover,
+.toolbar button#save-json:hover,
 .toolbar button#import-md:hover,
+.toolbar button#save-md:hover,
 .toolbar button#create-skill:hover {
     background-color: var(--accent-hover);
     border-color: var(--accent-hover);
@@ -1078,9 +1082,150 @@ textarea:placeholder-shown + .empty-state,
     flex-shrink: 0;
 }
 
-/* Hide scroll sync toggle on mobile */
-@media (max-width: 768px) {
-    .scroll-sync-toggle {
-        display: none;
-    }
+/* ===== Documents Drawer ===== */
+.docs-drawer {
+    position: fixed;
+    top: var(--header-height);
+    right: -320px;
+    width: 320px;
+    height: calc(100vh - var(--header-height));
+    background-color: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    transition: right 0.3s ease;
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+}
+
+.docs-drawer.open {
+    right: 0;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+.drawer-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-color);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.drawer-header .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.drawer-header .close-btn:hover {
+    color: var(--accent-color);
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.docs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.doc-item {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.doc-item:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.doc-item .doc-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 24px;
+}
+
+.doc-item .doc-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.doc-item .doc-type {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.doc-type-json {
+    background-color: var(--accent-light);
+    color: var(--accent-color);
+}
+
+.doc-type-md {
+    background-color: var(--panel-bg);
+    color: var(--text-muted);
+}
+
+.doc-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.15s ease;
+    font-size: 16px;
+}
+
+.doc-delete:hover {
+    color: var(--error-color);
+    background-color: rgba(225, 73, 66, 0.1);
+}
+
+.empty-docs {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
 }

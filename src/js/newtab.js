@@ -1012,6 +1012,209 @@ Output ONLY the skill file content starting with --- frontmatter.`;
 
     // ==================== Initialize ====================
 
+    function initDocumentStorage() {
+        const toggleBtn = document.getElementById('toggle-docs');
+        const closeBtn = document.getElementById('close-docs');
+        const drawer = document.getElementById('docs-drawer');
+        const docsList = document.getElementById('docs-list');
+        const saveJsonBtn = document.getElementById('save-json');
+        const saveMdBtn = document.getElementById('save-md');
+
+        // Drawer toggle
+        toggleBtn.addEventListener('click', () => {
+            drawer.classList.toggle('open');
+            if (drawer.classList.contains('open')) {
+                loadDocuments();
+                toggleBtn.classList.add('active');
+            } else {
+                toggleBtn.classList.remove('active');
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            drawer.classList.remove('open');
+            toggleBtn.classList.remove('active');
+        });
+
+        // Close drawer on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                toggleBtn.classList.remove('active');
+            }
+        });
+
+        async function saveDocument(type) {
+            const input = document.getElementById(type === 'json' ? 'json-input' : 'markdown-input');
+            const content = input.value.trim();
+            const saveBtn = type === 'json' ? saveJsonBtn : saveMdBtn;
+
+            if (!content) {
+                showToast('Nothing to save', 'error');
+                return;
+            }
+
+            if (type === 'json') {
+                try {
+                    JSON.parse(content);
+                } catch (e) {
+                    showToast('Invalid JSON content', 'error');
+                    return;
+                }
+            }
+
+            try {
+                setLoading(saveBtn, true);
+                const title = generateDocumentTitle(content, type === 'json' ? 'json' : 'md');
+                const id = Date.now().toString();
+                const doc = {
+                    id,
+                    type,
+                    title,
+                    content,
+                    timestamp: new Date().toISOString()
+                };
+
+                const result = await chrome.storage.local.get(['savedDocs']);
+                const savedDocs = result.savedDocs || [];
+                savedDocs.unshift(doc);
+                
+                // Limit to 50 docs
+                if (savedDocs.length > 50) savedDocs.pop();
+
+                await chrome.storage.local.set({ savedDocs });
+                showToast(`Saved "${title}"`);
+                
+                if (drawer.classList.contains('open')) {
+                    loadDocuments();
+                }
+            } catch (e) {
+                console.error('Error saving document:', e);
+                showToast('Save failed', 'error');
+            } finally {
+                setLoading(saveBtn, false);
+            }
+        }
+
+        function generateDocumentTitle(content, extension) {
+            let name = 'Untitled';
+            if (extension === 'json') {
+                try {
+                    const data = JSON.parse(content);
+                    if (data.name) name = String(data.name).slice(0, 30);
+                    else if (data.title) name = String(data.title).slice(0, 30);
+                } catch (e) {}
+            } else {
+                const headingMatch = content.match(/^#\s+(.+)$/m);
+                if (headingMatch) {
+                    name = headingMatch[1].slice(0, 30);
+                }
+            }
+            return name === 'Untitled' ? `${extension.toUpperCase()} Doc` : name;
+        }
+
+        async function loadDocuments() {
+            try {
+                const result = await chrome.storage.local.get(['savedDocs']);
+                const docs = result.savedDocs || [];
+                
+                if (docs.length === 0) {
+                    docsList.innerHTML = `
+                        <div class="empty-docs">
+                            No saved documents yet.<br>
+                            Click "Save" in the editor to keep a local copy.
+                        </div>
+                    `;
+                    return;
+                }
+
+                docsList.innerHTML = '';
+                docs.forEach(doc => {
+                    const date = new Date(doc.timestamp).toLocaleDateString();
+                    const item = document.createElement('div');
+                    item.className = 'doc-item';
+                    item.innerHTML = `
+                        <div class="doc-title">${escapeHtml(doc.title)}</div>
+                        <div class="doc-meta">
+                            <span class="doc-type doc-type-${doc.type}">${doc.type.toUpperCase()}</span>
+                            ${date}
+                        </div>
+                        <button class="doc-delete" title="Delete">&times;</button>
+                    `;
+
+                    item.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('doc-delete')) {
+                            e.stopPropagation();
+                            deleteDocument(doc.id);
+                        } else {
+                            openDocument(doc);
+                        }
+                    });
+
+                    docsList.appendChild(item);
+                });
+            } catch (e) {
+                console.error('Error loading documents:', e);
+                docsList.innerHTML = '<div class="empty-docs">Error loading documents</div>';
+            }
+        }
+
+        async function deleteDocument(id) {
+            if (!confirm('Are you sure you want to delete this document?')) return;
+            
+            try {
+                const result = await chrome.storage.local.get(['savedDocs']);
+                const savedDocs = result.savedDocs || [];
+                const updatedDocs = savedDocs.filter(d => d.id !== id);
+                await chrome.storage.local.set({ savedDocs: updatedDocs });
+                loadDocuments();
+                showToast('Document deleted');
+            } catch (e) {
+                showToast('Delete failed', 'error');
+            }
+        }
+
+        function openDocument(doc) {
+            const tabBtn = document.querySelector(`.tab-btn[data-tab="${doc.type}"]`);
+            if (tabBtn) tabBtn.click();
+
+            const input = document.getElementById(doc.type === 'json' ? 'json-input' : 'markdown-input');
+            if (input) {
+                input.value = doc.content;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                showToast(`Loaded "${doc.title}"`);
+                
+                // On mobile, close drawer after loading
+                if (window.innerWidth <= 768) {
+                    drawer.classList.remove('open');
+                    toggleBtn.classList.remove('active');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        saveJsonBtn.addEventListener('click', () => saveDocument('json'));
+        saveMdBtn.addEventListener('click', () => saveDocument('markdown'));
+
+        // Keyboard shortcuts for saving
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && !e.shiftKey) {
+                const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+                if (activeTab === 'json' || activeTab === 'markdown') {
+                    e.preventDefault();
+                    saveDocument(activeTab);
+                }
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initTabs();
         initResizablePanels();
@@ -1020,6 +1223,7 @@ Output ONLY the skill file content starting with --- frontmatter.`;
         initDragAndDrop();
         initClaudeSkillCreation();
         initScrollSync();
+        initDocumentStorage();
 
         // Focus appropriate input based on active tab
         const activeTab = document.querySelector('.tab-content.active');
