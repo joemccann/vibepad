@@ -193,6 +193,66 @@ describe('Chrome Extension Structure', () => {
         });
     });
 
+    describe('newtab.html Copy HTML button', () => {
+        let newtabContent;
+
+        beforeAll(() => {
+            const filePath = path.join(SRC_DIR, 'newtab.html');
+            newtabContent = fs.readFileSync(filePath, 'utf8');
+        });
+
+        test('should have a Copy HTML button in the markdown toolbar', () => {
+            expect(newtabContent).toContain('id="copy-html"');
+        });
+
+        test('Copy HTML button should have appropriate title', () => {
+            expect(newtabContent).toContain('title="Copy formatted HTML to clipboard"');
+        });
+    });
+
+    describe('newtab.js Copy HTML functionality', () => {
+        let newtabJsContent;
+
+        beforeAll(() => {
+            const filePath = path.join(SRC_DIR, 'js', 'newtab.js');
+            newtabJsContent = fs.readFileSync(filePath, 'utf8');
+        });
+
+        test('should reference copy-html button', () => {
+            expect(newtabJsContent).toContain("getElementById('copy-html')");
+        });
+
+        test('should use selection and execCommand to copy rich text', () => {
+            expect(newtabJsContent).toContain('selectNodeContents');
+            expect(newtabJsContent).toContain("execCommand('copy')");
+        });
+
+        test('should have a copyHtml function or handler', () => {
+            expect(newtabJsContent).toContain('copyHtml');
+        });
+
+        test('should show toast on successful copy', () => {
+            expect(newtabJsContent).toMatch(/copyHtml[\s\S]*showToast/);
+        });
+
+        test('should have keyboard shortcut for copy HTML (Cmd/Ctrl+Shift+C)', () => {
+            expect(newtabJsContent).toContain("e.key.toLowerCase() === 'c'");
+        });
+    });
+
+    describe('newtab.css Copy HTML button styles', () => {
+        let cssContent;
+
+        beforeAll(() => {
+            const filePath = path.join(SRC_DIR, 'css', 'newtab.css');
+            cssContent = fs.readFileSync(filePath, 'utf8');
+        });
+
+        test('should have styles for copy-html button', () => {
+            expect(cssContent).toContain('#copy-html');
+        });
+    });
+
     describe('background.js content', () => {
         let backgroundContent;
 

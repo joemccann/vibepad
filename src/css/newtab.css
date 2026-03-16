@@ -358,21 +358,24 @@ body {
     border-color: var(--accent-hover);
 }
 
-/* Secondary action buttons (Download) */
+/* Secondary action buttons (Download, Copy HTML) */
 .toolbar button#download-json,
-.toolbar button#download-md {
+.toolbar button#download-md,
+.toolbar button#copy-html {
     background-color: var(--button-dark);
     border-color: var(--button-dark);
     color: #ffffff;
 }
 
 [data-theme="dark"] .toolbar button#download-json,
-[data-theme="dark"] .toolbar button#download-md {
+[data-theme="dark"] .toolbar button#download-md,
+[data-theme="dark"] .toolbar button#copy-html {
     color: var(--bg-color);
 }
 
 .toolbar button#download-json:hover,
-.toolbar button#download-md:hover {
+.toolbar button#download-md:hover,
+.toolbar button#copy-html:hover {
     background-color: var(--button-dark-hover);
     border-color: var(--button-dark-hover);
 }

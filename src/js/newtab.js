@@ -503,6 +503,7 @@
         const output = document.getElementById('markdown-output');
         const formatBtn = document.getElementById('format-md');
         const clearBtn = document.getElementById('clear-md');
+        const copyHtmlBtn = document.getElementById('copy-html');
         const importBtn = document.getElementById('import-md');
         const downloadBtn = document.getElementById('download-md');
         const fileInput = document.getElementById('md-file-input');
@@ -577,6 +578,22 @@
             showToast(`Downloaded ${filename}`);
         }
 
+        function copyHtml() {
+            if (!output.innerHTML || output.querySelector('.empty-state')) {
+                showToast('Nothing to copy', 'error');
+                return;
+            }
+
+            const selection = window.getSelection();
+            const range = document.createRange();
+            selection.removeAllRanges();
+            range.selectNodeContents(output);
+            selection.addRange(range);
+            document.execCommand('copy');
+            selection.removeAllRanges();
+            showToast('Copied to clipboard');
+        }
+
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(renderMarkdown, 150);
@@ -584,6 +601,7 @@
 
         formatBtn.addEventListener('click', formatMarkdown);
         clearBtn.addEventListener('click', clearMarkdown);
+        copyHtmlBtn.addEventListener('click', copyHtml);
         downloadBtn.addEventListener('click', downloadMarkdown);
 
         // Import file handling
@@ -624,6 +642,9 @@
             } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault();
                 downloadMarkdown();
+            } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+                e.preventDefault();
+                copyHtml();
             } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
                 clearMarkdown();
